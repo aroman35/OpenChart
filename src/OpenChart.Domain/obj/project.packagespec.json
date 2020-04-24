@@ -1,0 +1,64 @@
+﻿{
+  "version": "1.0.0",
+  "restore": {
+    "projectUniqueName": "D:\\projects\\OpenChart\\src\\OpenChart.Domain\\OpenChart.Domain.csproj",
+    "projectName": "OpenChart.Domain",
+    "projectPath": "D:\\projects\\OpenChart\\src\\OpenChart.Domain\\OpenChart.Domain.csproj",
+    "outputPath": "D:\\projects\\OpenChart\\src\\OpenChart.Domain\\obj\\",
+    "projectStyle": "PackageReference",
+    "fallbackFolders": [
+      "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+    ],
+    "originalTargetFrameworks": [
+      "netstandard2.1"
+    ],
+    "sources": {
+      "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+      "https://api.nuget.org/v3/index.json": {}
+    },
+    "frameworks": {
+      "netstandard2.1": {
+        "projectReferences": {
+          "D:\\projects\\OpenChart\\src\\OpenChart.Ddd\\OpenChart.Ddd.csproj": {
+            "projectPath": "D:\\projects\\OpenChart\\src\\OpenChart.Ddd\\OpenChart.Ddd.csproj"
+          }
+        }
+      }
+    },
+    "warningProperties": {
+      "warnAsError": [
+        "NU1605"
+      ]
+    }
+  },
+  "frameworks": {
+    "netstandard2.1": {
+      "dependencies": {
+        "Newtonsoft.Json": {
+          "target": "Package",
+          "version": "[9.0.1, )"
+        },
+        "System.Linq.Async": {
+          "target": "Package",
+          "version": "[4.1.1, )"
+        }
+      },
+      "imports": [
+        "net461",
+        "net462",
+        "net47",
+        "net471",
+        "net472",
+        "net48"
+      ],
+      "assetTargetFallback": true,
+      "warn": true,
+      "frameworkReferences": {
+        "NETStandard.Library": {
+          "privateAssets": "all"
+        }
+      },
+      "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.201\\RuntimeIdentifierGraph.json"
+    }
+  }
+}

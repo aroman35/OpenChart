@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\OpenChart.Ddd\OpenChart.Ddd.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Enums"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="9.0.1"/>
+        <PackageReference Include="System.Linq.Async" Version="4.1.1"/>
+    </ItemGroup>
+
+</Project>
