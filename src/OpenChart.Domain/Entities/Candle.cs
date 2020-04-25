@@ -11,6 +11,11 @@ namespace OpenChart.Domain.Entities
     [ImmutableObject(true)]
     public class Candle : AggregateRoot<CandleDto>, ICandle, ITradeInstrument, IEquatable<Candle>
     {
+        public static Candle Empty(string classCode, string securityCode)
+        {
+            return new Candle(classCode, securityCode);
+        }
+
         private Candle()
         {
             CreationTime = DateTimeOffset.UtcNow;
@@ -34,7 +39,7 @@ namespace OpenChart.Domain.Entities
             TradeDateTime = DateTimeOffset.FromUnixTimeSeconds(dto.Date).LocalDateTime;
         }
 
-        public Candle(ICollection<Candle> childCandles) : this()
+        public Candle(IEnumerable<Candle> childCandles) : this()
         {
             SetFromCollection(childCandles);
             ClassCode = childCandles.First().ClassCode;
@@ -79,13 +84,11 @@ namespace OpenChart.Domain.Entities
 
         private void SetFromCollection(IEnumerable<Candle> childCandles)
         {
-            var internalCandles = childCandles.OrderBy(x => x).ToArray();
-
-            Open = internalCandles.First().Open;
-            Close = internalCandles.Last().Close;
-            High = internalCandles.Max(x => x.High);
-            Low = internalCandles.Min(x => x.Low);
-            Volume = internalCandles.Sum(x => x.Volume);
+            Open = childCandles.First().Open;
+            Close = childCandles.Last().Close;
+            High = childCandles.Max(x => x.High);
+            Low = childCandles.Min(x => x.Low);
+            Volume = childCandles.Sum(x => x.Volume);
         }
 
         public override int CompareTo(IAggregateRoot<CandleDto> other)
