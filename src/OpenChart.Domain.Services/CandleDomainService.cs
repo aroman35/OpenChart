@@ -29,6 +29,7 @@ namespace OpenChart.Domain.Services
         }
 
         public ITransaction<Candle> Transaction { get; }
+
         public Task<Candle> Create(CandleDto dto, CancellationToken cancellationToken = default)
         {
             CheckInstrument();
@@ -52,7 +53,7 @@ namespace OpenChart.Domain.Services
             var candles = dto.Select(x =>
                 new Candle(x,
                     _instrumentInfoProvider.InstrumentInfo.Instrument.ClassCode,
-                _instrumentInfoProvider.InstrumentInfo.Instrument.SecurityCode));
+                    _instrumentInfoProvider.InstrumentInfo.Instrument.SecurityCode));
 
             var candle = new Candle(candles);
 
@@ -81,6 +82,17 @@ namespace OpenChart.Domain.Services
                 .ToArray();
 
             return candlesWithUpdatedTimeFrame;
+        }
+
+        public IEnumerable<Candle> ChangeTimeFrame(IEnumerable<CandleDto> sourceCandles, TimeSpan timeFrame)
+        {
+            CheckInstrument();
+            var c = sourceCandles.Select(x =>
+                new Candle(x,
+                    _instrumentInfoProvider.InstrumentInfo.Instrument.ClassCode,
+                    _instrumentInfoProvider.InstrumentInfo.Instrument.SecurityCode));
+
+            return ChangeTimeFrame(c, timeFrame);
         }
 
         public async IAsyncEnumerable<Candle> ChangeTimeFrame(IAsyncEnumerable<Candle> sourceCandles, TimeSpan timeFrame,

@@ -10,6 +10,7 @@ namespace OpenChart.Domain.Services
     {
         void CurrentInstrument(IInstrumentInfo instrumentInfo);
         IEnumerable<Candle> ChangeTimeFrame(IEnumerable<Candle> sourceCandles, TimeSpan timeFrame);
+        IEnumerable<Candle> ChangeTimeFrame(IEnumerable<CandleDto> sourceCandles, TimeSpan timeFrame);
 
         IAsyncEnumerable<Candle> ChangeTimeFrame(IAsyncEnumerable<Candle> sourceCandles, TimeSpan timeFrame,
             CancellationToken cancellationToken = default);
