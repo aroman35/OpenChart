@@ -7,9 +7,9 @@ namespace OpenChart.Tests.Unit.Infrastructure
 {
     public class CollectionLoader
     {
-        public async IAsyncEnumerable<Candle> LoadTestData(string classCode, string securityCode)
+        public async IAsyncEnumerable<Candle> LoadTestData(string classCode, string securityCode, TimeFrame timeFrame)
         {
-            using var file = File.OpenText($"Infrastructure/{securityCode}@{classCode}.json");
+            using var file = File.OpenText($"Infrastructure/{securityCode}@{classCode}_{timeFrame.ToString()}.json");
             var json = await file.ReadToEndAsync();
             var data = JsonConvert.DeserializeObject<List<CandleDto>>(json);
             foreach (var dto in data)
@@ -18,9 +18,9 @@ namespace OpenChart.Tests.Unit.Infrastructure
             }
         }
 
-        public async IAsyncEnumerable<CandleDto> LoadTestDataDto(string classCode, string securityCode)
+        public async IAsyncEnumerable<CandleDto> LoadTestDataDto(string classCode, string securityCode, TimeFrame timeFrame)
         {
-            using var file = File.OpenText($"Infrastructure/{securityCode}@{classCode}.json");
+            using var file = File.OpenText($"Infrastructure/{securityCode}@{classCode}_{timeFrame.ToString()}.json");
             var json = await file.ReadToEndAsync();
             var data = JsonConvert.DeserializeObject<List<CandleDto>>(json);
             foreach (var dto in data)

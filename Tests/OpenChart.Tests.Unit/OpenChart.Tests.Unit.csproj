@@ -22,6 +22,9 @@
       <None Update="Infrastructure\AAPL%40SPBXM.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Infrastructure\AAPL@SPBXM_M1.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

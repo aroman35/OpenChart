@@ -46,7 +46,7 @@ namespace OpenChart.Persistence
 
         public async Task<List<string>> GetCollectionsList()
         {
-            return (await (await DataBase.ListCollectionsAsync()).ToListAsync<BsonDocument>()).Select(x => x.ToString()).ToList();
+            return (await (await DataBase.ListCollectionsAsync()).ToListAsync()).Select(x => x.ToString()).ToList();
         }
 
         public async Task SetIndexes()

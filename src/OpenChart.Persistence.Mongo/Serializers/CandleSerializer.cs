@@ -42,8 +42,8 @@ namespace OpenChart.Persistence.Serializers
             context.Writer.WriteName("v");
             context.Writer.WriteDecimal128(new Decimal128(value.Volume));
 
-            context.Writer.WriteName("date");
-            context.Writer.WriteTimestamp(value.Date);
+            context.Writer.WriteName("t");
+            context.Writer.WriteInt64(value.Date);
 
             context.Writer.WriteEndDocument();
         }
@@ -60,9 +60,7 @@ namespace OpenChart.Persistence.Serializers
             dto.High = (decimal)context.Reader.ReadDecimal128();
             dto.Low = (decimal)context.Reader.ReadDecimal128();
             dto.Volume = (decimal)context.Reader.ReadDecimal128();
-            dto.Volume = context.Reader.ReadTimestamp();
-
-            context.Reader.ReadDecimal128();
+            dto.Date = context.Reader.ReadInt64();
 
             context.Reader.ReadEndDocument();
 
