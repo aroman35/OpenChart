@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MediatR;
 using MongoDB.Driver;
 using OpenChart.Application.Common;
-using OpenChart.Application.Entities;
 using OpenChart.Domain.Entities;
 using OpenChart.Domain.Services;
 
@@ -33,14 +32,15 @@ namespace OpenChart.Application.Queries.CandlesByCount
                 .Find(filter)
                 // .Limit(request.CandlesCount)
                 .ToListAsync(cancellationToken);
+            //
+            // _candleDomainService.CurrentInstrument(new InstrumentInfo(
+            //     new TradeInstrument(request.ClassCode, request.SecurityCode),
+            //     _tradeDateStart));
 
-            _candleDomainService.CurrentInstrument(new InstrumentInfo(
-                new TradeInstrument(request.ClassCode, request.SecurityCode),
-                _tradeDateStart));
+            // var candlesResult = _candleDomainService.ChangeTimeFrame(dtoResult, request.TimeFrame);
 
-            var candlesResult = _candleDomainService.ChangeTimeFrame(dtoResult, request.TimeFrame);
-
-            return candlesResult;
+            throw new NotImplementedException();
+            // return candlesResult;
         }
     }
 }

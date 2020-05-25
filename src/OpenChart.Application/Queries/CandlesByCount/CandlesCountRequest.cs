@@ -17,7 +17,7 @@ namespace OpenChart.Application.Queries.CandlesByCount
         {
             ClassCode = classCode;
             SecurityCode = securityCode;
-            DateLimit = ((DateTimeOffset) dateLimit).ToUnixTimeSeconds();
+            DateLimit = ((DateTimeOffset) dateLimit).ToUnixTimeMilliseconds();
             CandlesCount = candlesCount;
             TimeFrame = timeFrame;
         }

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using OpenChart.Ddd.Infrastructure;
 using OpenChart.Domain.Entities;
@@ -8,11 +8,10 @@ namespace OpenChart.Domain.Services
 {
     public interface ICandleDomainService : IDomainService<Candle, CandleDto>
     {
-        void CurrentInstrument(IInstrumentInfo instrumentInfo);
-        IEnumerable<Candle> ChangeTimeFrame(IEnumerable<Candle> sourceCandles, TimeSpan timeFrame);
-        IEnumerable<Candle> ChangeTimeFrame(IEnumerable<CandleDto> sourceCandles, TimeSpan timeFrame);
+        void CurrentInstrument(Exchange exchange, string securityCode);
+        IEnumerable<Candle> ChangeTimeFrame(IEnumerable<Candle> sourceCandles, TimeFrame timeFrame);
 
-        IAsyncEnumerable<Candle> ChangeTimeFrame(IAsyncEnumerable<Candle> sourceCandles, TimeSpan timeFrame,
-            CancellationToken cancellationToken = default);
+        IAsyncEnumerable<Candle> ChangeTimeFrame(IAsyncEnumerable<Candle> sourceCandles, TimeFrame timeFrame,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default);
     }
 }

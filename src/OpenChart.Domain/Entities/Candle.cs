@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using OpenChart.Ddd.Aggregates;
 using OpenChart.Domain.DddImplementation;
 using OpenChart.Domain.Exceptions;
@@ -36,17 +34,10 @@ namespace OpenChart.Domain.Entities
             High = dto.High;
             Low = dto.Low;
             Volume = dto.Volume;
-            TradeDateTime = DateTimeOffset.FromUnixTimeSeconds(dto.Date).LocalDateTime;
+            TradeDateTime = DateTimeOffset.FromUnixTimeMilliseconds(dto.Date).LocalDateTime;
         }
 
-        public Candle(IEnumerable<Candle> childCandles) : this()
-        {
-            SetFromCollection(childCandles);
-            ClassCode = childCandles.First().ClassCode;
-            SecurityCode = childCandles.First().SecurityCode;
-        }
-
-        public DateTime TradeDateTime { get; private set; }
+        public DateTimeOffset TradeDateTime { get; private set; }
         public decimal Open { get; private set; }
         public decimal Close { get; private set; }
         public decimal High { get; private set; }
@@ -80,15 +71,6 @@ namespace OpenChart.Domain.Entities
         public override int GetHashCode()
         {
             return HashCode.Combine(TradeDateTime, ClassCode, SecurityCode);
-        }
-
-        private void SetFromCollection(IEnumerable<Candle> childCandles)
-        {
-            Open = childCandles.First().Open;
-            Close = childCandles.Last().Close;
-            High = childCandles.Max(x => x.High);
-            Low = childCandles.Min(x => x.Low);
-            Volume = childCandles.Sum(x => x.Volume);
         }
 
         public override int CompareTo(IAggregateRoot<CandleDto> other)

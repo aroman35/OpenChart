@@ -4,9 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenChart.Ddd.Infrastructure;
 using OpenChart.Domain.Entities;
-using OpenChart.Domain.Events;
 using OpenChart.Domain.Exceptions;
 using OpenChart.Domain.Extensions;
 
@@ -14,116 +12,123 @@ namespace OpenChart.Domain.Services
 {
     public class CandleDomainService : ICandleDomainService
     {
-        private readonly IInstrumentInfoProvider _instrumentInfoProvider;
-        private readonly IDomainEventBus _domainEventBus;
-        private readonly INotificationService _notificationService;
+        private Exchange ExchangeInfo;
+        private string SecurityCode;
 
-        public CandleDomainService(
-            IInstrumentInfoProvider instrumentInfoProvider,
-            IDomainEventBus domainEventBus,
-            INotificationService notificationService)
+        public async IAsyncEnumerable<Candle> Create(IAsyncEnumerable<CandleDto> dto,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            _instrumentInfoProvider = instrumentInfoProvider;
-            _domainEventBus = domainEventBus;
-            _notificationService = notificationService;
+            await foreach (var candleDto in dto.WithCancellation(cancellationToken))
+                yield return Create(candleDto);
         }
 
-        public ITransaction<Candle> Transaction { get; }
-
-        public Task<Candle> Create(CandleDto dto, CancellationToken cancellationToken = default)
+        public Candle Create(CandleDto dto)
         {
             CheckInstrument();
 
-            var candle = new Candle(
-                dto,
-                _instrumentInfoProvider.InstrumentInfo.Instrument.ClassCode,
-                _instrumentInfoProvider.InstrumentInfo.Instrument.ClassCode);
+            var classCode = ExchangeInfo.ClassCode;
+            var securityCode = SecurityCode;
 
-            Task.Run(() => _domainEventBus.Send(new CandleCreatedEvent(GetType(), candle)), cancellationToken);
-            return Task.FromResult(candle);
+            var candle = new Candle(dto, classCode, securityCode);
+
+            return candle;
         }
 
-        public Task<Candle> Create(IEnumerable<CandleDto> dto, CancellationToken cancellationToken = default)
+        public IEnumerable<Candle> Create(IEnumerable<CandleDto> dto)
         {
             CheckInstrument();
-            if (!dto.Any())
-                return Task.FromResult(Candle.Empty(_instrumentInfoProvider.InstrumentInfo.Instrument.ClassCode,
-                    _instrumentInfoProvider.InstrumentInfo.Instrument.SecurityCode));
 
-            var candles = dto.Select(x =>
-                new Candle(x,
-                    _instrumentInfoProvider.InstrumentInfo.Instrument.ClassCode,
-                    _instrumentInfoProvider.InstrumentInfo.Instrument.SecurityCode));
-
-            var candle = new Candle(candles);
-
-            Task.Run(() => _domainEventBus.Send(new CandleCreatedEvent(GetType(), candle)), cancellationToken);
-            return Task.FromResult(candle);
+            return dto.Select(Create);
         }
 
-        public void CurrentInstrument(IInstrumentInfo instrumentInfo)
+        public void CurrentInstrument(Exchange exchange, string securityCode)
         {
-            _instrumentInfoProvider.InstrumentInfo = instrumentInfo;
+            ExchangeInfo = exchange;
+            SecurityCode = securityCode;
         }
 
-        public IEnumerable<Candle> ChangeTimeFrame(IEnumerable<Candle> sourceCandles, TimeSpan timeFrame)
+        public IEnumerable<Candle> ChangeTimeFrame(IEnumerable<Candle> sourceCandles, TimeFrame timeFrame)
         {
-            UpdateTimeFrame(timeFrame);
+            CheckInstrument();
 
-            var candlesWithUpdatedTimeFrame = sourceCandles.OrderBy(x => x)
-                .GroupBy(x => x.TradeDateTime.Floor(_instrumentInfoProvider.InstrumentInfo.TimeFrame,
-                    _instrumentInfoProvider.InstrumentInfo.TradeDateStartOffset))
-                .Select(x =>
-                {
-                    var childCandles = x.ToArray();
-                    var resultCandle = new Candle(childCandles);
-                    return resultCandle.SetTradeDateTime(x.Key);
-                })
-                .ToArray();
+            var candlesWithUpdatedTimeFrame = ChangeTimeFrameAsDto(sourceCandles, timeFrame);
+
+            return Create(candlesWithUpdatedTimeFrame);
+        }
+
+        public async IAsyncEnumerable<Candle> ChangeTimeFrame(IAsyncEnumerable<Candle> sourceCandles, TimeFrame timeFrame,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var candlesWithUpdatedTimeFrame = ChangeTimeFrameAsDto(sourceCandles, timeFrame);
+
+            await foreach (var candleDto in candlesWithUpdatedTimeFrame.WithCancellation(cancellationToken))
+            {
+                yield return Create(candleDto);
+            }
+        }
+
+        private IAsyncEnumerable<CandleDto> ChangeTimeFrameAsDto(IAsyncEnumerable<Candle> sourceCandles, TimeFrame timeFrame)
+        {
+            var exchangeOffset = TimeSpan.FromMilliseconds(ExchangeInfo.TradeStart);
+
+            var candlesWithUpdatedTimeFrame = sourceCandles
+                .OrderBy()
+                .GroupBy(x => x.TradeDateTime.Floor(timeFrame, exchangeOffset))
+                .SelectAwaitWithCancellation(Merge);
 
             return candlesWithUpdatedTimeFrame;
         }
 
-        public IEnumerable<Candle> ChangeTimeFrame(IEnumerable<CandleDto> sourceCandles, TimeSpan timeFrame)
+        private IEnumerable<CandleDto> ChangeTimeFrameAsDto(IEnumerable<Candle> sourceCandles, TimeFrame timeFrame)
         {
-            CheckInstrument();
-            var c = sourceCandles.Select(x =>
-                new Candle(x,
-                    _instrumentInfoProvider.InstrumentInfo.Instrument.ClassCode,
-                    _instrumentInfoProvider.InstrumentInfo.Instrument.SecurityCode));
-
-            return ChangeTimeFrame(c, timeFrame);
-        }
-
-        public async IAsyncEnumerable<Candle> ChangeTimeFrame(IAsyncEnumerable<Candle> sourceCandles, TimeSpan timeFrame,
-            [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            UpdateTimeFrame(timeFrame);
+            var exchangeOffset = TimeSpan.FromMilliseconds(ExchangeInfo.TradeStart);
 
             var candlesWithUpdatedTimeFrame = sourceCandles
                 .OrderBy(x => x)
-                .GroupBy(x => x.TradeDateTime.Floor(_instrumentInfoProvider.InstrumentInfo.TimeFrame,
-                    _instrumentInfoProvider.InstrumentInfo.TradeDateStartOffset));
+                .GroupBy(x => x.TradeDateTime.Floor(timeFrame, exchangeOffset))
+                .Select(Merge);
 
-            await foreach (var candlesGroup in candlesWithUpdatedTimeFrame.WithCancellation(cancellationToken))
-            {
-                var childCandles = await candlesGroup.ToArrayAsync(cancellationToken: cancellationToken);
-                var resultCandle = new Candle(childCandles);
-
-                yield return resultCandle.SetTradeDateTime(candlesGroup.Key);
-            }
+            return candlesWithUpdatedTimeFrame;
         }
 
-        private void UpdateTimeFrame(TimeSpan timeFrame)
+        private async ValueTask<CandleDto> Merge(IAsyncGrouping<DateTimeOffset, Candle> candlesGroup,
+            CancellationToken cancellationToken)
         {
-            CheckInstrument();
+            var childCandles = await candlesGroup.ToLinkedListAsync(cancellationToken: cancellationToken);
 
-            _instrumentInfoProvider.InstrumentInfo.TimeFrame = timeFrame;
+            var resultCandle = new CandleDto
+            {
+                Date = candlesGroup.Key.ToUnixTimeMilliseconds(),
+                Open = childCandles.First.Value.Open,
+                Close = childCandles.Last.Value.Close,
+                High = childCandles.Max(candle => candle.High),
+                Low = childCandles.Min(candle => candle.Low),
+                Volume = childCandles.Sum(candle => candle.Volume)
+            };
+
+            return resultCandle;
+        }
+
+        private CandleDto Merge(IGrouping<DateTimeOffset, Candle> candlesGroup)
+        {
+            var childCandles = candlesGroup.ToLinkedList();
+
+            var resultCandle = new CandleDto
+            {
+                Date = candlesGroup.Key.ToUnixTimeMilliseconds(),
+                Open = childCandles.First.Value.Open,
+                Close = childCandles.Last.Value.Close,
+                High = childCandles.Max(candle => candle.High),
+                Low = childCandles.Min(candle => candle.Low),
+                Volume = childCandles.Sum(candle => candle.Volume)
+            };
+
+            return resultCandle;
         }
 
         private void CheckInstrument()
         {
-            if (!_instrumentInfoProvider.IsInstrumentSet)
+            if (string.IsNullOrEmpty(SecurityCode) || ExchangeInfo == null)
                 throw new DomainException(GetType(), "Instrument is not set");
         }
     }

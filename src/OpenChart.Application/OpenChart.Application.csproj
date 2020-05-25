@@ -5,12 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\OpenChart.Domain.Services\OpenChart.Domain.Services.csproj" />
+        <PackageReference Include="MediatR" Version="8.0.1" />
+        <PackageReference Include="MongoDB.Driver" Version="2.11.0-beta1" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MediatR" Version="8.0.1" />
-        <PackageReference Include="MongoDB.Driver" Version="2.11.0-beta1" />
+      <ProjectReference Include="..\OpenChart.Domain\OpenChart.Domain.csproj" />
     </ItemGroup>
 
 </Project>
