@@ -1,10 +1,17 @@
 ﻿using System;
+using MongoDB.Bson;
 using Newtonsoft.Json;
 
 namespace OpenChart.Domain.Entities.Candles
 {
     public class Candle : IComparable<Candle>, IEquatable<Candle>
     {
+        // public Candle()
+        // {
+        //     Id = ObjectId.GenerateNewId();
+        // }
+        [JsonIgnore]
+        public ObjectId Id { get; set; }
         [JsonIgnore]
         public DateTimeOffset TradeDateTime => DateTimeOffset.FromUnixTimeMilliseconds(Date);
         [JsonProperty("o")] public decimal Open { get; set; }

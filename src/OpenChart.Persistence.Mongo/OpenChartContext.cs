@@ -12,9 +12,6 @@ namespace OpenChart.Persistence
 {
     public class OpenChartContext : IDbContext
     {
-        private readonly IMongoClient _mongoClientM;
-        private readonly IMongoClient _mongoClientH;
-        private readonly IMongoClient _mongoClientD;
         private readonly IMongoDatabase _databaseM;
         private readonly IMongoDatabase _databaseH;
         private readonly IMongoDatabase _databaseD;
@@ -24,13 +21,13 @@ namespace OpenChart.Persistence
             var _mongoUrlH = new MongoUrl(mongoSettings.Value.ConnectionStringH);
             var _mongoUrlD = new MongoUrl(mongoSettings.Value.ConnectionStringD);
 
-            _mongoClientM = new MongoClient(_mongoUrlM);
-            _mongoClientH = new MongoClient(_mongoUrlH);
-            _mongoClientD = new MongoClient(_mongoUrlD);
+            IMongoClient mongoClientM = new MongoClient(_mongoUrlM);
+            IMongoClient mongoClientH = new MongoClient(_mongoUrlH);
+            IMongoClient mongoClientD = new MongoClient(_mongoUrlD);
 
-            _databaseM = _mongoClientM.GetDatabase(_mongoUrlM.DatabaseName);
-            _databaseH = _mongoClientH.GetDatabase(_mongoUrlH.DatabaseName);
-            _databaseD = _mongoClientD.GetDatabase(_mongoUrlD.DatabaseName);
+            _databaseM = mongoClientM.GetDatabase(_mongoUrlM.DatabaseName);
+            _databaseH = mongoClientH.GetDatabase(_mongoUrlH.DatabaseName);
+            _databaseD = mongoClientD.GetDatabase(_mongoUrlD.DatabaseName);
 
             InitClassMap();
         }
@@ -48,6 +45,7 @@ namespace OpenChart.Persistence
             BsonSerializer.RegisterSerializer(typeof(Candle), new CandleSerializer());
             BsonClassMap.RegisterClassMap<Candle>(cm =>
             {
+                cm.MapMember(x => x.Id).SetElementName("_id");
                 cm.MapMember(x => x.Date).SetElementName("t");
                 cm.MapMember(x => x.Open).SetElementName("o");
                 cm.MapMember(x => x.Close).SetElementName("c");

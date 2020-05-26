@@ -16,6 +16,9 @@ namespace OpenChart.Persistence.Serializers
         {
             context.Writer.WriteStartDocument();
 
+            context.Writer.WriteName("_id");
+            context.Writer.WriteObjectId(value.Id);
+
             context.Writer.WriteName("o");
             context.Writer.WriteDecimal128(new Decimal128(value.Open));
 
@@ -43,6 +46,7 @@ namespace OpenChart.Persistence.Serializers
 
             context.Reader.ReadStartDocument();
 
+            dto.Id = context.Reader.ReadObjectId();
             dto.Open = (decimal)context.Reader.ReadDecimal128();
             dto.Close = (decimal)context.Reader.ReadDecimal128();
             dto.High = (decimal)context.Reader.ReadDecimal128();
