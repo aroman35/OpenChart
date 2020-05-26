@@ -2,6 +2,7 @@
 using System.IO;
 using Newtonsoft.Json;
 using OpenChart.Domain.Entities;
+using OpenChart.Domain.Entities.Candles;
 
 namespace OpenChart.Tests.Unit.Infrastructure
 {
@@ -11,21 +12,10 @@ namespace OpenChart.Tests.Unit.Infrastructure
         {
             using var file = File.OpenText($"Infrastructure/{securityCode}@{classCode}_{timeFrame.ToString()}.json");
             var json = await file.ReadToEndAsync();
-            var data = JsonConvert.DeserializeObject<List<CandleDto>>(json);
-            foreach (var dto in data)
+            var data = JsonConvert.DeserializeObject<List<Candle>>(json);
+            foreach (var candle in data)
             {
-                yield return new Candle(dto, classCode, securityCode);
-            }
-        }
-
-        public async IAsyncEnumerable<CandleDto> LoadTestDataDto(string classCode, string securityCode, TimeFrame timeFrame)
-        {
-            using var file = File.OpenText($"Infrastructure/{securityCode}@{classCode}_{timeFrame.ToString()}.json");
-            var json = await file.ReadToEndAsync();
-            var data = JsonConvert.DeserializeObject<List<CandleDto>>(json);
-            foreach (var dto in data)
-            {
-                yield return dto;
+                yield return candle;
             }
         }
     }

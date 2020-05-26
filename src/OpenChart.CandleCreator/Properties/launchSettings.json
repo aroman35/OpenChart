@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "OpenChart.CandleCreator": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

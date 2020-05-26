@@ -1,31 +1,20 @@
 ﻿using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using OpenChart.Domain.Entities;
+using OpenChart.Domain.Entities.Candles;
 
 namespace OpenChart.Persistence.Serializers
 {
-    public class CandleSerializer : IBsonSerializer<CandleDto>
+    public class CandleSerializer : IBsonSerializer<Candle>
     {
-        private readonly GuidSerializer _guidSerializer;
-
-        public CandleSerializer()
-        {
-            _guidSerializer = new GuidSerializer();
-        }
-
         object IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             return Deserialize(context, args);
         }
 
-        public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, CandleDto value)
+        public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Candle value)
         {
             context.Writer.WriteStartDocument();
-
-            context.Writer.WriteName("Id");
-            _guidSerializer.Serialize(context, args, value.Id);
 
             context.Writer.WriteName("o");
             context.Writer.WriteDecimal128(new Decimal128(value.Open));
@@ -48,13 +37,12 @@ namespace OpenChart.Persistence.Serializers
             context.Writer.WriteEndDocument();
         }
 
-        public CandleDto Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        public Candle Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var dto = new CandleDto();
+            var dto = new Candle();
 
             context.Reader.ReadStartDocument();
 
-            dto.Id = _guidSerializer.Deserialize(context, args);
             dto.Open = (decimal)context.Reader.ReadDecimal128();
             dto.Close = (decimal)context.Reader.ReadDecimal128();
             dto.High = (decimal)context.Reader.ReadDecimal128();
@@ -69,10 +57,10 @@ namespace OpenChart.Persistence.Serializers
 
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value)
         {
-            if (value is CandleDto candleDto)
+            if (value is Candle candleDto)
                 Serialize(context, args, candleDto);
         }
 
-        public Type ValueType => typeof(CandleDto);
+        public Type ValueType => typeof(Candle);
     }
 }
