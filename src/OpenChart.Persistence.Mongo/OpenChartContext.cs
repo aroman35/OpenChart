@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using OpenChart.Application.Common;
@@ -15,6 +16,13 @@ namespace OpenChart.Persistence
         private readonly IMongoDatabase _databaseM;
         private readonly IMongoDatabase _databaseH;
         private readonly IMongoDatabase _databaseD;
+
+        private static bool isInit;
+
+        static OpenChartContext()
+        {
+            isInit = false;
+        }
         public OpenChartContext(IOptions<MongoSettings> mongoSettings)
         {
             var _mongoUrlM = new MongoUrl(mongoSettings.Value.ConnectionStringM);
@@ -29,7 +37,8 @@ namespace OpenChart.Persistence
             _databaseH = mongoClientH.GetDatabase(_mongoUrlH.DatabaseName);
             _databaseD = mongoClientD.GetDatabase(_mongoUrlD.DatabaseName);
 
-            InitClassMap();
+            if (!isInit)
+                InitClassMap();
         }
 
         private IMongoDatabase DataBase(DataBaseType dbType) => (dbType) switch
@@ -42,7 +51,7 @@ namespace OpenChart.Persistence
 
         private void InitClassMap()
         {
-            BsonSerializer.RegisterSerializer(typeof(Candle), new CandleSerializer());
+            // BsonSerializer.RegisterSerializer(typeof(Candle), new CandleSerializer());
             BsonClassMap.RegisterClassMap<Candle>(cm =>
             {
                 cm.MapMember(x => x.Id).SetElementName("_id");
@@ -53,6 +62,8 @@ namespace OpenChart.Persistence
                 cm.MapMember(x => x.Low).SetElementName("l");
                 cm.MapMember(x => x.Volume).SetElementName("v");
             });
+
+            isInit = true;
         }
 
         public int GetCollectionLength(string classCode, string securityCode, DataBaseType dbType)
@@ -95,8 +106,7 @@ namespace OpenChart.Persistence
         {
             await GetCollection(GetCollectionName(classCode, securityCode), dbType)
                 .Indexes
-                .CreateOneAsync(new CreateIndexModel<Candle>(
-                    new IndexKeysDefinitionBuilder<Candle>().Ascending(x => x.Date)));
+                .CreateOneAsync(new CreateIndexModel<Candle>(Builders<Candle>.IndexKeys.Ascending(x => x.Date)));
         }
 
         private string GetCollectionName(string classCode, string securityCode)
