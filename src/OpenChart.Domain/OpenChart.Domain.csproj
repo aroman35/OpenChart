@@ -5,12 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\OpenChart.Ddd\OpenChart.Ddd.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Folder Include="Enums" />
-        <Folder Include="Services" />
     </ItemGroup>
 
     <ItemGroup>

@@ -6,11 +6,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\OpenChart.Application\OpenChart.Application.csproj" />
-      <ProjectReference Include="..\OpenChart.Domain.Services\OpenChart.Domain.Services.csproj" />
       <ProjectReference Include="..\OpenChart.Persistence.Mongo\OpenChart.Persistence.Mongo.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.4" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     </ItemGroup>

@@ -1,8 +1,6 @@
-﻿using OpenChart.Ddd.Aggregates;
-
-namespace OpenChart.Domain.Entities
+﻿namespace OpenChart.Domain.Entities
 {
-    public class Exchange : IValueObject
+    public class Exchange
     {
         public string ClassCode { get; set; }
         public long TradeMorningStart { get; set; }

@@ -2,12 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using OpenChart.Application.Common;
 using OpenChart.Domain.Entities.Candles;
-using OpenChart.Persistence.Serializers;
 
 namespace OpenChart.Persistence
 {

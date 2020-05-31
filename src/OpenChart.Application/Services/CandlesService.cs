@@ -9,9 +9,9 @@ using OpenChart.Domain.Entities.Candles;
 using OpenChart.Domain.Exceptions;
 using OpenChart.Domain.Extensions;
 
-namespace OpenChart.Domain.Services
+namespace OpenChart.Application.Services
 {
-    public class CandleDomainService : ICandleDomainService
+    public class CandlesService
     {
         private Exchange ExchangeInfo;
         private string SecurityCode;

@@ -1,10 +1,11 @@
+using System.Reflection;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using OpenChart.Domain.Entities.Candles;
-using OpenChart.Domain.Services;
+using OpenChart.Application.Queries;
 using OpenChart.Persistence.Extensions;
 
 namespace OpenChart.Api
@@ -13,10 +14,10 @@ namespace OpenChart.Api
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private readonly IConfiguration _configuration;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -24,8 +25,8 @@ namespace OpenChart.Api
             services
                 .AddControllers()
                 .AddNewtonsoftJson();
-            services.AddDatabase(Configuration);
-            services.AddTransient<ICandleDomainService, CandleDomainService>();
+            services.AddDatabase(_configuration);
+            services.AddMediatR(typeof(GetTsvCandlesHandler).GetTypeInfo().Assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

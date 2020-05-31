@@ -15,16 +15,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\OpenChart.Domain.Services\OpenChart.Domain.Services.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Update="Infrastructure\AAPL%40SPBXM.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Infrastructure\AAPL@SPBXM_M1.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\OpenChart.Domain\OpenChart.Domain.csproj" />
     </ItemGroup>
 
 </Project>
